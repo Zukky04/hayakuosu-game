@@ -1,0 +1,115 @@
+body {
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); /* グラデーション背景 */
+    margin: 0;
+    overflow: hidden; /* スクロールバー非表示 */
+}
+
+.container {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* 影を強調 */
+    text-align: center;
+    width: 90%;
+    max-width: 650px;
+    position: relative;
+    overflow: hidden;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 25px;
+    font-size: 2.5em;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+#word-display {
+    font-size: 3.5em;
+    font-weight: bold;
+    color: #4a4a4a;
+    margin-bottom: 40px;
+    min-height: 1.5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+}
+
+#emoji-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.emoji-button {
+    background: linear-gradient(145deg, #e0e0e0, #f0f0f0); /* ボタンにグラデーション */
+    border: none;
+    border-radius: 12px;
+    padding: 25px;
+    font-size: 3em;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.15);
+    outline: none;
+}
+
+.emoji-button:hover {
+    background: linear-gradient(145deg, #d0d0d0, #e0e0e0);
+    transform: translateY(-3px);
+    box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.2);
+}
+
+.emoji-button:active {
+    background: linear-gradient(145deg, #c0c0c0, #d0d0d0);
+    transform: translateY(0);
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+#message {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 25px;
+    min-height: 1.5em;
+    transition: color 0.3s ease-in-out;
+}
+
+.controls p {
+    font-size: 1.3em;
+    margin: 12px 0;
+    color: #555;
+}
+
+#start-button {
+    background: linear-gradient(45deg, #28a745, #218838); /* ボタンにグラデーション */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 18px 35px;
+    font-size: 1.8em;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+    outline: none;
+}
+
+#start-button:hover {
+    background: linear-gradient(45deg, #218838, #1e7e34);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(40, 167, 69, 0.5);
+}
+
+#start-button:disabled {
+    background: linear-gradient(45deg, #cccccc, #bbbbbb);
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
