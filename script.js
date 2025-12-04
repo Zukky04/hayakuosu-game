@@ -3,6 +3,7 @@ const emojiButtonsContainer = document.getElementById('emoji-buttons');
 const messageDisplay = document.getElementById('message');
 const timerDisplay = document.getElementById('timer');
 const scoreDisplay = document.getElementById('score');
+const levelDisplay = document.getElementById('level');
 const startButton = document.getElementById('start-button');
 
 let score = 0;
@@ -11,6 +12,8 @@ let gameInterval;
 let currentWord = '';
 let currentCorrectEmoji = '';
 let gameActive = false;
+let level = 1;
+let correctCount = 0;
 
 // 文字と絵文字のペアデータ
 const emojiData = [
@@ -65,11 +68,68 @@ const emojiData = [
     { word: '寿司', emoji: '🍣' },
 ];
 
+// オーディオコントローラー
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+const playSound = (type) => {
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    if (type === 'click') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.1);
+        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.1);
+    } else if (type === 'correct') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime + 0.1);
+        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+
+        // 和音のための2つ目のオシレーター
+        const osc2 = audioCtx.createOscillator();
+        const gainNode2 = audioCtx.createGain();
+        osc2.connect(gainNode2);
+        gainNode2.connect(audioCtx.destination);
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(1000, audioCtx.currentTime); // 3度上
+        osc2.frequency.setValueAtTime(1200, audioCtx.currentTime + 0.1);
+        gainNode2.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gainNode2.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+        osc2.start();
+        osc2.stop(audioCtx.currentTime + 0.3);
+
+    } else if (type === 'wrong') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+        osc.frequency.linearRampToValueAtTime(100, audioCtx.currentTime + 0.3);
+        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+    }
+};
+
 // ゲームの初期化
 function initializeGame() {
     score = 0;
     timeLeft = 20;
+    level = 1;
+    correctCount = 0;
     scoreDisplay.textContent = `スコア: ${score}`;
+    levelDisplay.textContent = `レベル: ${level}`;
     timerDisplay.textContent = `残り時間: ${timeLeft}秒`;
     wordDisplay.textContent = '';
     emojiButtonsContainer.innerHTML = '';
@@ -102,7 +162,14 @@ function generateNewRound() {
     wordDisplay.textContent = currentWord;
 
     const emojis = [currentCorrectEmoji];
-    while (emojis.length < 6) { // 6つのボタンを表示
+
+    // レベルに応じて選択肢の数を決定
+    let numChoices = 3;
+    if (level === 2) numChoices = 6;
+    else if (level === 3) numChoices = 9;
+    else if (level >= 4) numChoices = 12;
+
+    while (emojis.length < numChoices) { // レベルに応じた数のボタンを表示
         const randomEmoji = emojiData[Math.floor(Math.random() * emojiData.length)].emoji;
         if (!emojis.includes(randomEmoji)) {
             emojis.push(randomEmoji);
@@ -115,6 +182,8 @@ function generateNewRound() {
         const button = document.createElement('button');
         button.classList.add('emoji-button');
         button.textContent = emoji;
+        button.style.animation = 'pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards';
+        button.style.animationDelay = `${Math.random() * 0.2}s`; // ランダムな遅延でポップ感を出す
         button.addEventListener('click', () => handleEmojiClick(emoji));
         emojiButtonsContainer.appendChild(button);
     });
@@ -125,10 +194,27 @@ function handleEmojiClick(clickedEmoji) {
     if (!gameActive) return;
 
     if (clickedEmoji === currentCorrectEmoji) {
-        score += 100; // 正解で100点加算
-        messageDisplay.textContent = '正解！';
+        playSound('correct');
+
+        // 指数関数的なスコア計算: 100 * (1.5 ^ (level - 1))
+        const points = Math.floor(100 * Math.pow(1.5, level - 1));
+        score += points;
+
+        messageDisplay.textContent = `正解！ +${points}`;
         messageDisplay.style.color = '#28a745';
+
+        // レベルアップ判定
+        correctCount++;
+        if (correctCount >= 3) {
+            level++;
+            correctCount = 0;
+            levelDisplay.textContent = `レベル: ${level}`;
+            // レベルアップ演出（簡易）
+            messageDisplay.textContent = `レベルアップ！ Lv.${level}`;
+            score += Math.floor(200 * Math.pow(1.5, level - 1)); // ボーナスも増やす
+        }
     } else {
+        playSound('wrong');
         score -= 50; // 不正解で50点減点
         messageDisplay.textContent = '不正解...';
         messageDisplay.style.color = '#e74c3c';
@@ -157,7 +243,10 @@ function shuffleArray(array) {
 }
 
 // イベントリスナー
-startButton.addEventListener('click', startGame);
+startButton.addEventListener('click', () => {
+    playSound('click');
+    startGame();
+});
 
 // ページロード時にゲームを初期化
 initializeGame();
