@@ -69,17 +69,32 @@ h1 {
 
 #emoji-buttons {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
+    /* 常に3列にする */
     gap: 10px;
     margin-bottom: 20px;
+    width: 100%;
+    max-width: 400px;
+    /* ボタンエリアの幅を制限して間延びを防ぐ */
+}
+
+@media (min-width: 600px) {
+    #emoji-buttons {
+        grid-template-columns: repeat(6, 1fr);
+        /* 画面が広い場合は6列 */
+        max-width: 100%;
+    }
 }
 
 .emoji-button {
     background: linear-gradient(145deg, #ffffff, #e6e6e6);
     border: none;
     border-radius: 12px;
-    padding: 15px;
-    font-size: 2.5em;
+    border-radius: 12px;
+    padding: 10px;
+    /* パディングを少し減らす */
+    font-size: 2em;
+    /* フォントサイズも少し調整 */
     cursor: pointer;
     transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow:
