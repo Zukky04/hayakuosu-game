@@ -1,13 +1,20 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>絵文字マッチゲーム</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div class="container">
+        <div id="hud">
+            <div class="hud-item" id="timer">残り時間: 30秒</div>
+            <div class="hud-item" id="level">レベル: 1</div>
+            <div class="hud-item" id="score">スコア: 0</div>
+        </div>
         <h1>絵文字マッチゲーム</h1>
         <div id="game-area">
             <p id="word-display"></p>
@@ -16,10 +23,9 @@
         </div>
         <div class="controls">
             <button id="start-button">ゲーム開始</button>
-            <p id="timer">残り時間: 30秒</p>
-            <p id="score">スコア: 0</p>
         </div>
     </div>
     <script src="script.js"></script>
 </body>
+
 </html>
